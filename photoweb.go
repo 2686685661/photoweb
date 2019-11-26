@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -77,7 +76,7 @@ func  uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == "POST" {
-		f, h, err := r.FormFile("imasge")
+		f, h, err := r.FormFile("image")
 		check(err)
 
 		filename := h.Filename
@@ -110,20 +109,30 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == "POST" {
-		err := r.ParseForm()
+		name := r.FormValue("name")
+		fmt.Println("Will delete: ", UPLOAD_DIR + "/" + name)
+
+		pathName := UPLOAD_DIR + "/" + name
+		_, err := PathExists(pathName)
 		check(err)
 
-		con, _ := ioutil.ReadAll(r.Body) //获取post的数据
-		fmt.Println(con)
-		fmt.Println(string(con))
+		if err := os.Remove(pathName); err != nil {
+			check(err)
+		}
+		fmt.Println("delete success!")
+		http.Redirect(w, r, "/", http.StatusFound)
 
-		var delName map[string]interface{}
+}
 
-		json.Unmarshal(con, &delName)
-		fmt.Println("del name:", delName["name"])
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
 	}
-
+	if os.IsExist(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 
@@ -157,6 +166,7 @@ func checkError(err error, w http.ResponseWriter) {
 
 func check(err error) {
 	if err != nil {
+		panic(err)
 		panic(err)
 	}
 

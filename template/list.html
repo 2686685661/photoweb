@@ -24,21 +24,16 @@
             console.log("图片名称不能为空");
             return;
         }
-
+        console.log(imgName)
         var data = {
             name: imgName
         };
 
-        $.ajax({
-            type: "post",
-            // dataType: "json",
-            url: "http://localhost:8090/del",
-            // contentType: "application/x-www-form-urlencoded; charset=utf-8",
-            data: JSON.stringify(data),
-            success: (msg) => {
-                console.log("success");
-            }
-        });
+        $.get('/del', {
+            name: imgName
+        }, function(data) {
+            console.log(data)
+        })
     }
 
 </script>
